@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="200" height="200" fill="none" stroke="black" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Contorno cerebro izquierdo -->
+  <path d="M160 80c-26.5 0-48 21.5-48 48v256c0 26.5 21.5 48 48 48"/>
+  <path d="M160 80c26.5 0 48 21.5 48 48v256c0 26.5-21.5 48-48 48"/>
+  <!-- Contorno cerebro derecho -->
+  <path d="M352 80c26.5 0 48 21.5 48 48v256c0 26.5-21.5 48-48 48"/>
+  <path d="M352 80c-26.5 0-48 21.5-48 48v256c0 26.5 21.5 48 48 48"/>
+  <!-- Líneas de circuito -->
+  <line x1="352" y1="128" x2="464" y2="128"/>
+  <circle cx="480" cy="128" r="16"/>
+  <line x1="352" y1="192" x2="464" y2="192"/>
+  <circle cx="480" cy="192" r="16"/>
+  <line x1="352" y1="256" x2="464" y2="256"/>
+  <circle cx="480" cy="256" r="16"/>
+  <line x1="352" y1="320" x2="464" y2="320"/>
+  <circle cx="480" cy="320" r="16"/>
+  <line x1="352" y1="384" x2="464" y2="384"/>
+  <circle cx="480" cy="384" r="16"/>
+</svg>
