@@ -18,7 +18,22 @@ const config = [
       prettier: prettierPlugin,
     },
     rules: {
+      // rules style
       'prettier/prettier': ['error'],
+      quotes: ['error', 'single'],
+      semi: ['error', 'always'],
+      // react rules
+      'react/function-component-definition': [
+        2,
+        {
+          namedComponents: 'arrow-function',
+          unnamedComponents: 'arrow-function',
+        },
+      ],
+
+      // Server Actions
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
 ];
