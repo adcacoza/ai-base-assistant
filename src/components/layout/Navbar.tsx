@@ -24,9 +24,6 @@ export const Navbar: React.FC = () => {
           <Image src="/assets/logo.svg" alt="Logo" width={32} height={32} />
           MyApp
         </Link>
-        <Link href="/" className="text-xl font-bold">
-          MyApp
-        </Link>
 
         <MenuButton isOpen={menuOpen} toggle={toggleMenu} />
 
@@ -58,9 +55,6 @@ export const Navbar: React.FC = () => {
           </li>
         </ul>
 
-        <Button variant="secondary" size="sm" className="hidden md:inline-flex">
-          Log in
-        </Button>
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <Button
