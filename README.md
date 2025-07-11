@@ -1,5 +1,33 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Configuration
+
+This project uses the OpenAI and Google Gemini APIs to generate text. To use these features, you need to create API keys for both services and configure them in the project.
+
+### 1. OpenAI API Key
+
+1.  Go to the [OpenAI website](https://platform.openai.com/) and create an account or log in.
+2.  Navigate to the [API keys](https://platform.openai.com/api-keys) section.
+3.  Click on "Create new secret key" and give it a name.
+4.  Copy the generated key.
+
+### 2. Google Gemini API Key
+
+1.  Go to [Google AI Studio](https://aistudio.google.com/) and log in with your Google account.
+2.  Click on "Get API key" and then "Create API key in new project".
+3.  Copy the generated key.
+
+**Important Note:** In Google AI Studio, make sure to check the model name that is available to you. You may need to update the model name in the code (`src/app/actions/generateText.ts`) to match the one you have access to, otherwise you may get an error.
+
+### 3. Environment Variables
+
+Once you have both keys, create a file named `.env.local` in the root of the project and add the following lines, replacing `your-key` with the keys you obtained:
+
+```
+OPENAI_API_KEY=your-openai-key
+GEMINI_API_KEY=your-gemini-key
+```
+
 ## Getting Started
 
 First, run the development server:
