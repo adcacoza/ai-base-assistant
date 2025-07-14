@@ -3,6 +3,8 @@
 import OpenAI from 'openai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { mapApiError } from '@/lib/errorMapper';
+import { promptSchema } from '@/lib/validation/promptSchema';
+import { withSafeAction } from '@/lib/withSafeAction';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -10,7 +12,15 @@ const openai = new OpenAI({
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-export async function generateText(prompt: string): Promise<string> {
+//server validation
+export const generateText = withSafeAction(async (rawPrompt: string) => {
+  const parsed = promptSchema.safeParse({ prompt: rawPrompt });
+  if (!parsed.success) {
+    const message = parsed.error.errors[0]?.message ?? 'Datos inválidos.';
+    throw new Error(message);
+  }
+
+  const prompt = parsed.data.prompt;
   // first try openia
   try {
     const completion = await openai.chat.completions.create({
@@ -42,8 +52,7 @@ export async function generateText(prompt: string): Promise<string> {
       return text;
     } catch (geminiError) {
       console.error('Error Gemini:', geminiError);
-      // Si también falla Gemini, mapea y lanza error
       throw new Error(mapApiError(geminiError));
     }
   }
-}
+});

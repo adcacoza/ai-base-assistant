@@ -1,73 +1,74 @@
 'use client';
 
-import { useState, useTransition, FormEvent } from 'react';
+import { useState, useTransition } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { generateSchema } from '@/lib/validation/generateSchema';
 import { generateText } from '@/app/actions/generateText';
 import { Button } from '@/components/atoms/button';
 import { Input } from '@/components/atoms/input';
-import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 import { useHistory } from '@/hooks/useHistory';
+import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 import { toast } from 'sonner';
 
+type GenerateInput = z.infer<typeof generateSchema>;
+
 export const GenerateForm = () => {
-  const [prompt, setPrompt] = useState<string>('');
-  const [result, setResult] = useState<string>('');
-  const [error, setError] = useState<string>('');
-  const [isPending, startTransition] = useTransition();
   const { history, addToHistory, clearHistory } = useHistory();
-  const MAX_LENGTH = 500;
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<GenerateInput>({
+    resolver: zodResolver(generateSchema),
+  });
 
-    const trimmed = prompt.trim();
-    if (!trimmed) {
-      setError('Por favor escribe un prompt.');
-      return;
-    }
-    if (trimmed.length > 500) {
-      setError('El prompt es demasiado largo (máximo 500 caracteres).');
-      return;
-    }
-
-    setError('');
-    setResult('');
-
+  const onSubmit = (data: GenerateInput) => {
+    setError(null);
     startTransition(async () => {
       try {
-        const text = await generateText(trimmed);
-        setResult(text);
-        addToHistory({ prompt: trimmed, response: text });
+        const result = await generateText(data.prompt);
+        if (!result.success) {
+          toast.error(`❌ ${result.error}`);
+          setError(result.error);
+          return;
+        }
+        toast.success('✅ Texto generado correctamente');
+        addToHistory({ prompt: data.prompt, response: result.data });
+        reset();
       } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Ocurrió un error inesperado.';
-        setError(errorMessage);
-        toast.error(errorMessage);
+        const message =
+          err instanceof Error
+            ? err.message
+            : 'Ocurrió un error inesperado al generar el texto.';
+        toast.error(`❌ ${message}`);
+        setError(message);
       }
     });
   };
 
-  const handleCopy = () => {
-    if (result) {
-      navigator.clipboard.writeText(result);
+  const handleCopy = (text: string | null) => {
+    if (text) {
+      navigator.clipboard.writeText(text);
       toast.success('Texto copiado al portapapeles');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <Input
         placeholder="Escribe un prompt..."
-        value={prompt}
-        onChange={(e) => {
-          if (e.target.value.length <= MAX_LENGTH) {
-            setPrompt(e.target.value);
-          }
-        }}
         disabled={isPending}
+        {...register('prompt')}
       />
-      <div className="text-xs text-muted-foreground text-right">
-        {prompt.length}/{MAX_LENGTH}
-      </div>
+      {errors.prompt && (
+        <p className="text-sm text-red-500">{errors.prompt.message}</p>
+      )}
 
       <Button type="submit" disabled={isPending}>
         {isPending ? 'Generando...' : 'Generar'}
@@ -76,20 +77,6 @@ export const GenerateForm = () => {
       {isPending && (
         <div className="flex justify-center">
           <LoadingSpinner />
-        </div>
-      )}
-
-      {result && (
-        <div className="p-4 bg-secondary rounded text-secondary-foreground space-y-2">
-          <p>{result}</p>
-          <Button
-            variant="outline"
-            size="sm"
-            type="button"
-            onClick={handleCopy}
-          >
-            Copiar
-          </Button>
         </div>
       )}
 
@@ -104,14 +91,22 @@ export const GenerateForm = () => {
           <h3 className="text-sm font-semibold">Historial</h3>
           <ul className="space-y-1">
             {history.map((item, idx) => (
-              <li key={idx} className="p-2 bg-muted rounded">
+              <li key={idx} className="p-2 bg-muted rounded space-y-2">
                 <p className="font-semibold">{item.prompt}</p>
                 <p>{item.response}</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  onClick={() => handleCopy(item.response)}
+                >
+                  Copiar
+                </Button>
               </li>
             ))}
           </ul>
           <Button
-            variant="destructive"
+            variant="secondary"
             size="sm"
             onClick={clearHistory}
             type="button"
