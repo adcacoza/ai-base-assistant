@@ -4,17 +4,21 @@ import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { generateSchema } from '@/lib/validation/generateSchema';
-import { generateText } from '@/app/actions/generateText';
+import { generateTextWithRag } from '@/app/actions/generateTextWithRag';
+
+const generateSchemaWithDoc = z.object({
+  prompt: z.string().min(1, { message: 'El prompt no puede estar vacío.' }),
+  document: z.string().min(1, { message: 'Debes subir un documento.' }),
+});
 import { Button } from '@/components/atoms/button';
 import { Input } from '@/components/atoms/input';
 import { useHistory } from '@/hooks/useHistory';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 import { toast } from 'sonner';
 
-type GenerateInput = z.infer<typeof generateSchema>;
+type GenerateInput = z.infer<typeof generateSchemaWithDoc>;
 
-export const GenerateForm = () => {
+export const GenerateFormWithRag = () => {
   const { history, addToHistory, clearHistory } = useHistory();
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<string | null>(null);
@@ -25,8 +29,9 @@ export const GenerateForm = () => {
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm<GenerateInput>({
-    resolver: zodResolver(generateSchema),
+    resolver: zodResolver(generateSchemaWithDoc),
   });
 
   const onSubmit = (data: GenerateInput) => {
@@ -34,10 +39,15 @@ export const GenerateForm = () => {
     setError(null);
     startTransition(async () => {
       try {
-        const result = await generateText(data.prompt);
+        const result = await generateTextWithRag(data);
         if (!result.success) {
-          toast.error(`❌ ${result.error}`);
-          setError(result.error);
+          if (typeof result.error === 'string') {
+            toast.error(`❌ ${result.error}`);
+            setError(result.error);
+          } else {
+            toast.error('❌ Ocurrió un error inesperado.');
+            setError('Ocurrió un error inesperado.');
+          }
           return;
         }
         toast.success('✅ Texto generado correctamente');
@@ -67,16 +77,51 @@ export const GenerateForm = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <Input
-        placeholder="Escribe un prompt..."
+        type="file"
+        accept=".txt,.pdf"
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            if (file.type === 'application/pdf') {
+              const formData = new FormData();
+              formData.append('file', file);
+              try {
+                const response = await fetch('/api/parse-pdf', {
+                  method: 'POST',
+                  body: formData,
+                });
+                const data = await response.json();
+                if (response.ok) {
+                  setValue('document', data.text);
+                } else {
+                  toast.error(`❌ ${data.error}`);
+                }
+              } catch {
+                toast.error('❌ Error al procesar el PDF.');
+              }
+            } else {
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                const text = e.target?.result as string;
+                setValue('document', text);
+              };
+              reader.readAsText(file);
+            }
+          }
+        }}
+      />
+      <Input
+        placeholder="Escribe un prompt para el RAG..."
         disabled={isPending}
         {...register('prompt')}
       />
+      <input type="hidden" {...register('document')} />
       {errors.prompt && (
         <p className="text-sm text-red-500">{errors.prompt.message}</p>
       )}
 
       <Button type="submit" disabled={isPending}>
-        {isPending ? 'Generando...' : 'Generar'}
+        {isPending ? 'Generando con RAG...' : 'Generar con RAG'}
       </Button>
 
       {isPending && (
@@ -84,11 +129,13 @@ export const GenerateForm = () => {
           <LoadingSpinner />
         </div>
       )}
+
       {result && (
         <div className="p-4 bg-secondary rounded text-secondary-foreground space-y-2">
           <p>{result}</p>
         </div>
       )}
+
       {error && (
         <div className="p-4 bg-destructive text-destructive-foreground rounded">
           {error}
@@ -115,7 +162,7 @@ export const GenerateForm = () => {
             ))}
           </ul>
           <Button
-            variant="secondary"
+            variant="destructive"
             size="sm"
             onClick={clearHistory}
             type="button"
