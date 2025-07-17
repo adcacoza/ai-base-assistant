@@ -2,7 +2,13 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Button } from '@/components/atoms/button';
+import {
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from '@clerk/nextjs';
 import { MenuButton } from './MenuButton';
 import { ThemeToggle } from '../atoms/ThemeToggle';
 import Image from 'next/image';
@@ -32,38 +38,35 @@ export const Navbar: React.FC = () => {
             menuOpen ? 'block' : 'hidden md:flex'
           }`}
         >
-          <li>
-            <Link
-              href="/about"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              About
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/contact"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Contact
-            </Link>
-          </li>
-          <li className="md:hidden">
-            <Button variant="secondary" size="sm" className="w-full">
-              Log in
-            </Button>
-          </li>
+          <SignedOut>
+            <li>
+              <Link
+                href="/about"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                About
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/contact"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Contact
+              </Link>
+            </li>
+          </SignedOut>
         </ul>
 
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <Button
-            variant="secondary"
-            size="sm"
-            className="hidden md:inline-flex"
-          >
-            Log in
-          </Button>
+          <SignedOut>
+            <SignInButton />
+            <SignUpButton />
+          </SignedOut>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
         </div>
       </nav>
     </header>
