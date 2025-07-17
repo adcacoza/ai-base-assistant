@@ -11,11 +11,13 @@ import { Input } from '@/components/atoms/input';
 import { useHistory } from '@/hooks/useHistory';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 import { toast } from 'sonner';
+import { useUser } from '@clerk/nextjs';
 
 type GenerateInput = z.infer<typeof generateSchema>;
 
 export const GenerateForm = () => {
-  const { history, addToHistory, clearHistory } = useHistory();
+  const { user } = useUser();
+  const { history, addToHistory, clearHistory } = useHistory('chat', user?.id);
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
