@@ -7,7 +7,7 @@ export const Footer = () => {
     <footer className="w-full border-t bg-background mt-12">
       <div className="container mx-auto flex flex-col md:flex-row items-center justify-between py-6 gap-4 text-sm text-muted-foreground">
         <span>
-          &copy; {new Date().getFullYear()} MyApp. All rights reserved.
+          &copy; {new Date().getFullYear()} AI assistant. All rights reserved.
         </span>
         <div className="flex gap-4">
           <Link href="/privacy" className="hover:text-foreground">

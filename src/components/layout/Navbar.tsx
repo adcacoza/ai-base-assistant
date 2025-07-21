@@ -28,7 +28,7 @@ export const Navbar: React.FC = () => {
       >
         <Link href="/" className="flex items-center gap-2 text-xl font-bold">
           <Image src="/assets/logo.svg" alt="Logo" width={32} height={32} />
-          MyApp
+          AI assistant
         </Link>
 
         <MenuButton isOpen={menuOpen} toggle={toggleMenu} />
@@ -58,11 +58,27 @@ export const Navbar: React.FC = () => {
           </SignedOut>
         </ul>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
+          <SignedIn>
+            <Link
+              href="/chat"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Chat
+            </Link>
+            <Link
+              href="/rag"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              RAG
+            </Link>
+          </SignedIn>
           <ThemeToggle />
           <SignedOut>
-            <SignInButton />
-            <SignUpButton />
+            <div className="flex gap-2">
+              <SignInButton />
+              <SignUpButton />
+            </div>
           </SignedOut>
           <SignedIn>
             <UserButton />
