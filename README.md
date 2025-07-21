@@ -28,21 +28,76 @@ OPENAI_API_KEY=your-openai-key
 GEMINI_API_KEY=your-gemini-key
 ```
 
-## Getting Started
+## How to Run This Project
 
-First, run the development server:
+You have two options to run this project. The recommended way is using Docker.
+
+---
+
+### Option 1: Running with Docker (Recommended)
+
+This is the easiest way to get started. It runs the application in an isolated environment without needing to install Node.js or dependencies on your machine.
+
+**Prerequisites:**
+
+- [Docker](https://www.docker.com/get-started) must be installed and running.
+
+**Steps:**
+
+1.  **Configure API Keys:** Create the `.env.local` file as described in the [Configuration](#3-environment-variables) section.
+
+2.  **Build the Docker Image:** Open your terminal in the project root and run:
+
+    ```bash
+    docker build -t ai-base-assistant .
+    ```
+
+    _(This step does the `npm install` for you, inside the container)._
+
+3.  **Run the Application:** Once the build is complete, run the following command:
+
+    ```bash
+    docker run -p 3000:3000 --env-file ./.env.local --name ai-assistant-container ai-base-assistant
+    ```
+
+4.  **Open the App:** Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+**To stop the application:**
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+docker stop ai-assistant-container
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
+
+### Option 2: Running Manually (Without Docker)
+
+Use this method if you prefer to manage the Node.js environment and dependencies yourself.
+
+**Prerequisites:**
+
+- [Node.js](https://nodejs.org/) (version 20 or higher recommended)
+- `npm`
+
+**Steps:**
+
+1.  **Configure API Keys:** Create the `.env.local` file as described in the [Configuration](#3-environment-variables) section.
+
+2.  **Install Dependencies:** Open your terminal and run:
+
+    ```bash
+    npm install --legacy-peer-deps
+    ```
+
+    _(The `--legacy-peer-deps` flag is necessary to avoid conflicts with some of the project's dependencies)._
+
+3.  **Run the Development Server:**
+
+    ```bash
+    npm run dev
+    ```
+
+4.  **Open the App:** Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
