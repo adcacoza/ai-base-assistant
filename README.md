@@ -21,11 +21,24 @@ This project uses the OpenAI and Google Gemini APIs to generate text. To use the
 
 ### 3. Environment Variables
 
-Once you have both keys, create a file named `.env.local` in the root of the project and add the following lines, replacing `your-key` with the keys you obtained:
+This project requires several API keys to function. Create a file named `.env.local` in the root of the project and add the following lines, replacing the placeholder values with your actual keys.
+
+**You will need keys from:**
+
+- [OpenAI](https://platform.openai.com/api-keys)
+- [Google AI Studio (Gemini)](https://aistudio.google.com/)
+- [Clerk](https://dashboard.clerk.com/last-active?path=api-keys) (for user authentication)
 
 ```
+# .env.local
+
+# AI Provider Keys
 OPENAI_API_KEY=your-openai-key
 GEMINI_API_KEY=your-gemini-key
+
+# Clerk Authentication Keys
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
 ```
 
 ## How to Run This Project
@@ -46,10 +59,12 @@ This is the easiest way to get started. It runs the application in an isolated e
 
 1.  **Configure API Keys:** Create the `.env.local` file as described in the [Configuration](#3-environment-variables) section.
 
-2.  **Build the Docker Image:** Open your terminal in the project root and run:
+2.  **Build the Docker Image:** You must pass the public Clerk key to the build command. This is because the key is needed to build the frontend part of the application.
+
+    Get the `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` from your `.env.local` file and run the following command, replacing `your_clerk_publishable_key` with its value:
 
     ```bash
-    docker build -t ai-base-assistant .
+    docker build --build-arg NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key -t ai-base-assistant .
     ```
 
     _(This step does the `npm install` for you, inside the container)._

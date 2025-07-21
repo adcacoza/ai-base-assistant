@@ -11,6 +11,9 @@ WORKDIR /app
 COPY package*.json ./
 
 # 4. Install Dependencies
+# Install build tools required for native addons like hnswlib-node
+RUN apk add --no-cache python3 make g++
+
 # We'll create a .npmrc file to handle the --legacy-peer-deps issue automatically.
 RUN echo "legacy-peer-deps=true" > .npmrc
 RUN npm install
@@ -20,6 +23,10 @@ RUN rm .npmrc
 COPY . .
 
 # 6. Build the Next.js application
+# Pass the public Clerk key as a build argument to be available during the build process.
+ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+
 RUN npm run build
 
 # 7. Production Image: Create a smaller, more secure image for production.

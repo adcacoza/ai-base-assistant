@@ -1,3 +1,0 @@
-LangChain es un framework para desarrollar aplicaciones potenciadas por modelos de lenguaje.
-ChromaDB es una base de datos de vectores de código abierto.
-Juntos, se pueden usar para construir sistemas de RAG (Recuperación Aumentada de Generación).
