@@ -1,6 +1,11 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/molecules/Card';
 import { SignedIn, SignedOut } from '@clerk/nextjs';
 import Link from 'next/link';
 import LoginPage from './login/page';
