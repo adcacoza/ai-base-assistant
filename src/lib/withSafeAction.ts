@@ -1,24 +1,48 @@
-export function withSafeAction<TArgs extends any[], TReturn>(
-  action: (...args: TArgs) => Promise<TReturn>,
-) {
-  return async (
-    ...args: TArgs
-  ): Promise<
-    { success: true; data: TReturn } | { success: false; error: string }
-  > => {
+import { z } from 'zod';
+import { mapApiError } from './errorMapper';
+
+type ActionState<TInput, TOutput> =
+  | {
+      success: true;
+      data: TOutput;
+    }
+  | {
+      success: false;
+      error: string;
+      fieldErrors?: Record<keyof TInput, string[] | undefined>;
+    };
+
+type Action<TInput, TOutput> = (
+  data: TInput,
+) => Promise<ActionState<TInput, TOutput>>;
+
+export const createSafeAction = <TInput, TOutput>(
+  schema: z.Schema<TInput>,
+  handler: (validatedData: TInput) => Promise<TOutput>,
+): Action<TInput, TOutput> => {
+  return async (data: TInput) => {
+    const validationResult = schema.safeParse(data);
+
+    if (!validationResult.success) {
+      const fieldErrors = validationResult.error.flatten()
+        .fieldErrors as Record<keyof TInput, string[] | undefined>;
+      const message = 'Datos de entrada no válidos.';
+
+      console.error('[Validation Error]', fieldErrors);
+      return {
+        success: false,
+        error: message,
+        fieldErrors,
+      };
+    }
+
     try {
-      const data = await action(...args);
-      return { success: true, data };
+      const result = await handler(validationResult.data);
+      return { success: true, data: result };
     } catch (error) {
-      let message = 'Ha ocurrido un error inesperado.';
-
-      if (error instanceof Error) {
-        message = error.message;
-      }
-
+      const message = mapApiError(error);
       console.error('[Server Action Error]', error);
-
       return { success: false, error: message };
     }
   };
-}
+};

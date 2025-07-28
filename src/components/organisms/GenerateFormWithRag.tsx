@@ -10,6 +10,7 @@ import { useHistoryContext } from '@/context/HistoryContext';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 import { toast } from 'sonner';
 import { ArrowUp, Paperclip } from 'lucide-react';
+import { useRef } from 'react';
 
 const generateSchemaWithDoc = z.object({
   prompt: z.string().min(1, { message: 'El prompt no puede estar vacío.' }),
@@ -26,6 +27,7 @@ export const GenerateFormWithRag = ({
   startTransition: React.TransitionStartFunction;
 }) => {
   const { addMessageToConversation } = useHistoryContext();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -59,6 +61,7 @@ export const GenerateFormWithRag = ({
     >
       <div className="flex items-center space-x-2">
         <Input
+          ref={fileInputRef}
           id="file-upload"
           type="file"
           className="hidden"
@@ -96,11 +99,14 @@ export const GenerateFormWithRag = ({
             }
           }}
         />
-        <label htmlFor="file-upload">
-          <Button asChild variant="ghost" size="icon">
-            <Paperclip />
-          </Button>
-        </label>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <Paperclip />
+        </Button>
         <Input
           placeholder="Escribe una pregunta sobre el documento..."
           disabled={isPending}

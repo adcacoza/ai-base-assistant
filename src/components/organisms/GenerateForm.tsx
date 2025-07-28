@@ -34,7 +34,7 @@ export const GenerateForm = ({
 
   const onSubmit = (data: GenerateInput) => {
     startTransition(async () => {
-      const result = await generateText(data.prompt);
+      const result = await generateText(data);
       if (result.success) {
         toast.success('✅ Texto generado correctamente');
         if (typeof result.data === 'string') {
